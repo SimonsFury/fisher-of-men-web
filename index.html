@@ -1,220 +1,316 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0">
-		<title>Fisher of Men</title>
-		<style>
-html, body, #canvas {
-	margin: 0;
-	padding: 0;
-	border: 0;
-}
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0">
+<meta name="theme-color" content="#123b43">
+<title>Fisher of Men</title>
+<link rel="preload" href="loading/people.webp" as="image">
+<link rel="preload" href="loading/title.webp" as="image">
+<style>
+html, body, #canvas { margin: 0; padding: 0; border: 0; }
+body { background: #123b43; color: #123b43; overflow: hidden; touch-action: none; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+#canvas { display: block; }
+#canvas:focus { outline: none; }
 
-body {
-	color: white;
-	background-color: black;
-	overflow: hidden;
-	touch-action: none;
+/* The loading screen: a short walk to Jesus while the game downloads. */
+#loader { position: fixed; inset: 0; z-index: 2; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; background: #f7efd9; transition: opacity 0.7s ease; }
+#loader::before { content: ""; position: absolute; inset: -12px; background: url("loading/bg.jpg") center / cover no-repeat; filter: blur(3px); opacity: 0; transition: opacity 0.8s ease; }
+#loader.bg-ready::before { opacity: 1; }
+#loader::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(247, 239, 217, 0.15) 0%, rgba(247, 239, 217, 0.55) 45%, rgba(247, 239, 217, 0.9) 100%); }
+#loader > * { position: relative; z-index: 1; }
+#stage { display: flex; flex-direction: column; align-items: center; gap: 3.2vh; transform-origin: center; }
+#loader.leaving { opacity: 0; pointer-events: none; }
+#title { width: min(78vw, 400px); height: auto; filter: drop-shadow(0 3px 6px rgba(18, 59, 67, 0.35)); }
+#scene { position: relative; width: min(94vw, 560px); height: 170px; }
+#path { position: absolute; left: 0; right: 0; bottom: 6px; height: 58px; border-radius: 14px; border: 3px solid #e8bb67; box-shadow: 0 0 0 3px #0c2d34, 0 6px 14px rgba(12, 45, 52, 0.35); background-color: #e8e2c8; background-image: linear-gradient(45deg, #ede7d0 25%, transparent 25%, transparent 75%, #ede7d0 75%), linear-gradient(45deg, #ede7d0 25%, transparent 25%, transparent 75%, #ede7d0 75%); background-size: 36px 36px; background-position: 0 0, 18px 18px; overflow: hidden; }
+#goal { position: absolute; right: -4px; bottom: 30px; width: 120px; height: 140px; pointer-events: none; }
+#glow { position: absolute; left: 50%; top: 50%; width: 170px; height: 170px; transform: translate(-50%, -52%); background: url("loading/glow.webp") center / contain no-repeat; animation: breathe 3.2s ease-in-out infinite; }
+#gate { position: absolute; left: 50%; bottom: 0; width: 120px; height: 108px; transform: translateX(-50%); background: url("loading/gate.webp") center bottom / contain no-repeat; }
+#jesus { position: absolute; left: 50%; bottom: -2px; width: 44px; height: 68px; transform: translateX(-50%); background: url("loading/jesus.webp") center bottom / contain no-repeat; }
+#walkers { position: absolute; inset: 0; overflow: hidden; border-radius: 14px; }
+.person, .waiting { position: absolute; left: 0; bottom: 4px; width: 56px; height: 56px; margin-left: -28px; will-change: transform; }
+.person, .waiting .sprite { background: url("loading/people.webp") 0 0 / 224px 504px no-repeat; }
+.waiting .sprite { position: absolute; inset: 0; transition: transform 0.35s ease, opacity 0.35s ease; }
+.waiting .disc { position: absolute; left: 50%; bottom: 1px; width: 36px; height: 14px; margin-left: -18px; border-radius: 50%; background: rgba(140, 203, 176, 0.85); transition: opacity 0.35s ease; }
+.waiting.taken .sprite { transform: translateY(-12px) scale(1.12); opacity: 0; }
+.waiting.taken .disc { opacity: 0; }
+.spark { position: absolute; bottom: 26px; width: 4px; height: 4px; margin-left: -2px; border-radius: 50%; background: #e8bb67; pointer-events: none; animation: spark 0.6s ease-out forwards; }
+#procession { position: absolute; inset: 0; overflow: visible; }
+#procession .person { margin-left: 0; left: 0; top: 0; bottom: auto; transform-origin: 50% 100%; }
+#status { min-height: 1.6em; margin: 0; font-size: clamp(16px, 2.4vh, 22px); font-weight: 600; letter-spacing: 0.02em; color: #123b43; text-shadow: 0 1px 0 rgba(247, 239, 217, 0.8); }
+#status .pct { color: #8f6a24; font-variant-numeric: tabular-nums; }
+#notice { display: none; max-width: min(88vw, 460px); padding: 18px 20px; border-radius: 16px; background: #173e45; border: 2px solid #e8bb67; color: #f7efd9; line-height: 1.45; text-align: center; font-size: 16px; }
+#notice strong { display: block; margin-bottom: 6px; color: #e8bb67; font-size: 19px; }
+#notice small { display: block; margin-top: 10px; color: #8ccbb0; }
+#loader.failed #scene, #loader.failed #status { display: none; }
+#loader.failed #notice { display: block; }
+@keyframes breathe { 0%, 100% { opacity: 0.75; transform: translate(-50%, -52%) scale(0.96); } 50% { opacity: 1; transform: translate(-50%, -52%) scale(1.04); } }
+@keyframes spark { from { opacity: 1; transform: translate(0, 0); } to { opacity: 0; transform: translate(var(--dx), -26px); } }
+@media (prefers-reduced-motion: reduce) {
+  #glow { animation: none; }
+  .spark { display: none; }
+  #loader, .waiting { transition-duration: 0.01s; }
 }
-
-#canvas {
-	display: block;
-}
-
-#canvas:focus {
-	outline: none;
-}
-
-#status, #status-splash, #status-progress {
-	position: absolute;
-	left: 0;
-	right: 0;
-}
-
-#status, #status-splash {
-	top: 0;
-	bottom: 0;
-}
-
-#status {
-	background-color: #242424;
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: center;
-	visibility: hidden;
-}
-
-#status-splash {
-	max-height: 100%;
-	max-width: 100%;
-	margin: auto;
-}
-
-#status-splash.show-image--false {
-	display: none;
-}
-
-#status-splash.fullsize--true {
-	height: 100%;
-	width: 100%;
-	object-fit: contain;
-}
-
-#status-splash.use-filter--false {
-	image-rendering: pixelated;
-}
-
-#status-progress, #status-notice {
-	display: none;
-}
-
-#status-progress {
-	bottom: 10%;
-	width: 50%;
-	margin: 0 auto;
-}
-
-#status-notice {
-	background-color: #5b3943;
-	border-radius: 0.5rem;
-	border: 1px solid #9b3943;
-	color: #e0e0e0;
-	font-family: 'Noto Sans', 'Droid Sans', Arial, sans-serif;
-	line-height: 1.3;
-	margin: 0 2rem;
-	overflow: hidden;
-	padding: 1rem;
-	text-align: center;
-	z-index: 1;
-}
-		</style>
-		<link id="-gd-engine-icon" rel="icon" type="image/png" href="index.icon.png" />
+@media (min-aspect-ratio: 4/3) { #scene { height: 180px; } }
+</style>
+<link id="-gd-engine-icon" rel="icon" type="image/png" href="index.icon.png" />
 <link rel="apple-touch-icon" href="index.apple-touch-icon.png"/>
 
-	</head>
-	<body>
-		<canvas id="canvas">
-			Your browser does not support the canvas tag.
-		</canvas>
-
-		<noscript>
-			Your browser does not support JavaScript.
-		</noscript>
-
-		<div id="status">
-			<img id="status-splash" class="show-image--true fullsize--true use-filter--true" src="index.png" alt="">
-			<progress id="status-progress"></progress>
-			<div id="status-notice"></div>
-		</div>
-
-		<script src="index.js"></script>
-		<script>
-const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","mainPack":"game-01b2f14795438b51.pck","experimentalVK":false,"fileSizes":{"game-01b2f14795438b51.pck":9111076,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
+</head>
+<body>
+<canvas id="canvas">Your browser does not support the canvas tag.</canvas>
+<noscript>Fisher of Men needs JavaScript to run.</noscript>
+<div id="loader" role="status" aria-live="polite">
+  <div id="stage">
+  <img id="title" src="loading/title.webp" alt="Fisher of Men" width="520" height="177">
+  <div id="scene" aria-hidden="true">
+    <div id="path"><div id="walkers"></div></div>
+    <div id="goal"><div id="glow"></div><div id="gate"></div><div id="procession"></div><div id="jesus"></div></div>
+  </div>
+  <p id="status"></p>
+  <div id="notice"></div>
+  </div>
+</div>
+<script src="index.js"></script>
+<script>
+const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","mainPack":"game-6b8e31445262d054.pck","experimentalVK":false,"fileSizes":{"game-6b8e31445262d054.pck":10158124,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
 const GODOT_THREADS_ENABLED = false;
 const engine = new Engine(GODOT_CONFIG);
 
 (function () {
-	const statusOverlay = document.getElementById('status');
-	const statusProgress = document.getElementById('status-progress');
-	const statusNotice = document.getElementById('status-notice');
+  // Every player-facing string of the loading screen, kept together for translation.
+  const STRINGS = {
+    gathering: 'Gathering people',
+    almost: 'Almost home',
+    welcome: 'Welcome home',
+    errorTitle: 'This browser cannot start the game',
+    errorText: 'Please open play.smallstonestudio.com in an up-to-date Chrome, Edge, Firefox or Safari.',
+    errorDetail: 'Missing: ',
+  };
+  const loader = document.getElementById('loader');
+  const walkers = document.getElementById('walkers');
+  const statusLine = document.getElementById('status');
+  const notice = document.getElementById('notice');
+  const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const CELL = 56;
+  // Six people wait along the path, chosen for varied looks from the rendered sheet.
+  const WAITING_ROWS = [1, 2, 3, 5, 6, 7];
+  const SPACING = 30;
 
-	let initializing = true;
-	let statusMode = '';
+  // On large screens the whole scene grows (the sprites are drawn at twice their size).
+  const stage = document.getElementById('stage');
+  function fit() {
+    const grow = window.innerWidth > 700 ? Math.min(1.6, Math.max(1, window.innerHeight / 620)) : 1;
+    stage.style.transform = grow > 1 ? 'scale(' + grow.toFixed(3) + ')' : '';
+  }
+  fit();
+  window.addEventListener('resize', fit);
 
-	function setStatusMode(mode) {
-		if (statusMode === mode || !initializing) {
-			return;
-		}
-		if (mode === 'hidden') {
-			statusOverlay.remove();
-			initializing = false;
-			return;
-		}
-		statusOverlay.style.visibility = 'visible';
-		statusProgress.style.display = mode === 'progress' ? 'block' : 'none';
-		statusNotice.style.display = mode === 'notice' ? 'block' : 'none';
-		statusMode = mode;
-	}
+  const background = new Image();
+  background.onload = () => loader.classList.add('bg-ready');
+  background.src = 'loading/bg.jpg';
 
-	function setStatusNotice(text) {
-		while (statusNotice.lastChild) {
-			statusNotice.removeChild(statusNotice.lastChild);
-		}
-		const lines = text.split('\n');
-		lines.forEach((line) => {
-			statusNotice.appendChild(document.createTextNode(line));
-			statusNotice.appendChild(document.createElement('br'));
-		});
-	}
+  function person(row) {
+    const el = document.createElement('div');
+    el.className = 'person walker';
+    el.style.backgroundPosition = '0 ' + (-row * CELL) + 'px';
+    walkers.appendChild(el);
+    return el;
+  }
+  function waitingPerson(row) {
+    // Someone waiting on a light disc, like a pickup on the board.
+    const el = document.createElement('div');
+    el.className = 'waiting';
+    const disc = document.createElement('div');
+    disc.className = 'disc';
+    const sprite = document.createElement('div');
+    sprite.className = 'sprite';
+    sprite.style.backgroundPosition = (-CELL) + 'px ' + (-row * CELL) + 'px';
+    el.appendChild(disc);
+    el.appendChild(sprite);
+    walkers.appendChild(el);
+    return el;
+  }
+  function frame(el, row, index) {
+    el.style.backgroundPosition = (-index * CELL) + 'px ' + (-row * CELL) + 'px';
+  }
 
-	function displayFailureNotice(err) {
-		console.error(err);
-		if (err instanceof Error) {
-			setStatusNotice(err.message);
-		} else if (typeof err === 'string') {
-			setStatusNotice(err);
-		} else {
-			setStatusNotice('An unknown error occurred.');
-		}
-		setStatusMode('notice');
-		initializing = false;
-	}
+  // The leader walks the path; people wait along it and join the line as he passes.
+  const leader = { el: person(0), row: 0 };
+  leader.el.style.zIndex = 3;
+  const waiting = [];
+  WAITING_ROWS.forEach((row, i) => {
+    waiting.push({ row: row, at: 0.13 + i * 0.145, el: waitingPerson(row), joined: false });
+  });
+  const line = [];
+  let shown = 0;
+  let target = 0;
+  let downloaded = false;
+  let ready = false;
+  let finishing = false;
+  let walkClock = 0;
+  let walkFrame = 0;
+  let last = performance.now();
 
-	const missing = Engine.getMissingFeatures({
-		threads: GODOT_THREADS_ENABLED,
-	});
+  function pathWidth() { return walkers.clientWidth; }
+  function leaderX(p) {
+    const width = pathWidth();
+    const start = 26;
+    const end = width - 92; // stop in front of Jesus
+    return start + (end - start) * p;
+  }
+  function setStatus(text, pct) {
+    statusLine.textContent = '';
+    statusLine.appendChild(document.createTextNode(text + (pct === null ? '' : '… ')));
+    if (pct !== null) {
+      const span = document.createElement('span');
+      span.className = 'pct';
+      span.textContent = pct + '%';
+      statusLine.appendChild(span);
+    }
+  }
+  function sparkle(x) {
+    if (calm) return;
+    for (let i = 0; i < 5; i++) {
+      const s = document.createElement('div');
+      s.className = 'spark';
+      s.style.left = x + 'px';
+      s.style.setProperty('--dx', ((i - 2) * 7) + 'px');
+      walkers.appendChild(s);
+      setTimeout(() => s.remove(), 700);
+    }
+  }
 
-	if (missing.length !== 0) {
-		if (GODOT_CONFIG['serviceWorker'] && GODOT_CONFIG['ensureCrossOriginIsolationHeaders'] && 'serviceWorker' in navigator) {
-			let serviceWorkerRegistrationPromise;
-			try {
-				serviceWorkerRegistrationPromise = navigator.serviceWorker.getRegistration();
-			} catch (err) {
-				serviceWorkerRegistrationPromise = Promise.reject(new Error('Service worker registration failed.'));
-			}
-			// There's a chance that installing the service worker would fix the issue
-			Promise.race([
-				serviceWorkerRegistrationPromise.then((registration) => {
-					if (registration != null) {
-						return Promise.reject(new Error('Service worker already exists.'));
-					}
-					return registration;
-				}).then(() => engine.installServiceWorker()),
-				// For some reason, `getRegistration()` can stall
-				new Promise((resolve) => {
-					setTimeout(() => resolve(), 2000);
-				}),
-			]).then(() => {
-				// Reload if there was no error.
-				window.location.reload();
-			}).catch((err) => {
-				console.error('Error while registering service worker:', err);
-			});
-		} else {
-			// Display the message as usual
-			const missingMsg = 'Error\nThe following features required to run Godot projects on the Web are missing:\n';
-			displayFailureNotice(missingMsg + missing.join('\n'));
-		}
-	} else {
-		setStatusMode('progress');
-		engine.startGame({
-			'onProgress': function (current, total) {
-				if (current > 0 && total > 0) {
-					statusProgress.value = current;
-					statusProgress.max = total;
-				} else {
-					statusProgress.removeAttribute('value');
-					statusProgress.removeAttribute('max');
-				}
-			},
-		}).then(() => {
-			setStatusMode('hidden');
-		}, displayFailureNotice);
-	}
+  function tick(now) {
+    const dt = Math.min(0.1, (now - last) / 1000);
+    last = now;
+    // While the engine starts after the download, keep creeping, never past 97%.
+    if (downloaded && !ready) target = Math.min(0.97, target + dt * 0.02);
+    if (ready) target = 1;
+    const before = shown;
+    // Ease towards the target at a walking pace; never step backwards.
+    shown = Math.max(shown, Math.min(target, shown + Math.max((target - shown) * dt * 2.5, dt * 0.05)));
+    const x = leaderX(shown);
+    const moving = shown - before > 0.00005;
+    if (moving && !calm) {
+      walkClock += dt;
+      if (walkClock > 0.12) { walkClock = 0; walkFrame = (walkFrame + 1) % 4; }
+    } else walkFrame = 0;
+    leader.el.style.transform = 'translateX(' + x + 'px)';
+    frame(leader.el, 0, walkFrame);
+    for (const w of waiting) {
+      if (!w.joined) {
+        w.el.style.transform = 'translateX(' + leaderX(w.at) + 'px)';
+        if (shown >= w.at) {
+          w.joined = true;
+          w.el.classList.add('taken');
+          sparkle(leaderX(w.at));
+          const follower = person(w.row);
+          line.push({ el: follower, row: w.row });
+          setTimeout(() => w.el.remove(), 350);
+        }
+      }
+    }
+    line.forEach((f, k) => {
+      f.el.style.transform = 'translateX(' + (x - (k + 1) * SPACING) + 'px)';
+      frame(f.el, f.row, (walkFrame + k) % 4 * (moving && !calm ? 1 : 0));
+    });
+    const pct = Math.min(100, Math.floor(shown * 100));
+    if (!finishing) setStatus(ready && shown > 0.995 ? STRINGS.welcome : (downloaded ? STRINGS.almost : STRINGS.gathering), ready && shown > 0.995 ? null : pct);
+    if (ready && shown > 0.995 && !finishing) {
+      finishing = true;
+      setStatus(STRINGS.welcome, null);
+      frame(leader.el, 0, 0);
+      procession().then(() => {
+        loader.classList.add('leaving');
+        setTimeout(() => loader.remove(), 750);
+      });
+      return;
+    }
+    requestAnimationFrame(tick);
+  }
+
+  // The finale, as on a delivery in the game: the fisher waits beside Jesus while
+  // everyone he gathered walks past Jesus and into the gate, shrinking and fading.
+  function procession() {
+    const goal = document.getElementById('goal');
+    const layer = document.getElementById('procession');
+    const box = goal.getBoundingClientRect();
+    const zoom = box.width / goal.offsetWidth || 1;
+    if (calm || line.length === 0) {
+      line.forEach((f) => { f.el.style.transition = 'opacity 0.3s'; f.el.style.opacity = '0'; });
+      return new Promise((done) => setTimeout(done, 350));
+    }
+    const centre = goal.offsetWidth / 2;
+    const door = { x: centre, y: goal.offsetHeight - 58 };
+    const runs = line.map((f, i) => {
+      const r = f.el.getBoundingClientRect();
+      const x = (r.left + r.width / 2 - box.left) / zoom;
+      const feet = (r.bottom - box.top) / zoom - 4;
+      const el = document.createElement('div');
+      el.className = 'person';
+      layer.appendChild(el);
+      f.el.style.visibility = 'hidden';
+      const place = (px, py, scale) => 'translate(' + (px - CELL / 2) + 'px, ' + (py - CELL) + 'px) scale(' + scale + ')';
+      const steps = [
+        { transform: place(x, feet, 1), opacity: 1 },
+        { transform: place(centre - 30, feet, 1), opacity: 1, offset: 0.45 },
+        { transform: place(centre - 12, feet - 30, 0.72), opacity: 1, offset: 0.72 },
+        { transform: place(door.x, door.y, 0.38), opacity: 0 },
+      ];
+      let walk = 0;
+      const clock = setInterval(() => { walk = (walk + 1) % 4; frame(el, f.row, walk); }, 110);
+      frame(el, f.row, 0);
+      const move = el.animate(steps, { duration: 1300, delay: i * 170, easing: 'ease-in-out', fill: 'both' });
+      return move.finished.then(() => { clearInterval(clock); el.remove(); });
+    });
+    return Promise.all(runs);
+  }
+
+  function fail(text) {
+    loader.classList.add('failed');
+    notice.textContent = '';
+    const title = document.createElement('strong');
+    title.textContent = STRINGS.errorTitle;
+    notice.appendChild(title);
+    notice.appendChild(document.createTextNode(STRINGS.errorText));
+    if (text) {
+      const detail = document.createElement('small');
+      detail.textContent = text;
+      notice.appendChild(detail);
+    }
+  }
+
+  const missing = Engine.getMissingFeatures({ threads: GODOT_THREADS_ENABLED });
+  if (missing.length !== 0) {
+    fail(STRINGS.errorDetail + missing.join(', '));
+    return;
+  }
+  setStatus(STRINGS.gathering, 0);
+  requestAnimationFrame(tick);
+  // Compression can hide the real download size, so measure against the
+  // engine's known file sizes rather than the reported total.
+  const sizes = GODOT_CONFIG.fileSizes || {};
+  const known = Object.values(sizes).reduce((a, b) => a + b, 0);
+  engine.startGame({
+    onProgress: function (current, total) {
+      const whole = known > 0 ? known : total;
+      if (current > 0 && whole > 0) {
+        const f = Math.min(1, current / whole);
+        target = Math.max(target, f * 0.92);
+        if (f >= 0.999) downloaded = true;
+      }
+    },
+  }).then(() => {
+    downloaded = true;
+    ready = true;
+  }, (err) => {
+    console.error(err);
+    fail(err && err.message ? err.message : String(err));
+  });
 }());
-		</script>
-	</body>
+</script>
+</body>
 </html>
 
