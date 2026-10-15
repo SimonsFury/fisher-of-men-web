@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="no-js">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0">
@@ -16,6 +16,16 @@
 <meta property="og:image:height" content="500">
 <meta property="og:image:alt" content="Fisher of Men: a line of people follows a glowing path up to Jesus.">
 <meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://play.smallstonestudio.com/">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "VideoGame", "name": "Fisher of Men", "url": "https://play.smallstonestudio.com/", "description": "Fisher of Men is a free game you play in your browser. Gather people, lead them to Jesus and avoid the serpent. Every run ends with a Bible verse. No ads and no in-game purchases.", "image": "https://play.smallstonestudio.com/og-image.jpg", "gamePlatform": "Web browser", "applicationCategory": "Game", "playMode": "SinglePlayer", "inLanguage": ["en", "de"], "offers": {"@type": "Offer", "price": "0", "priceCurrency": "EUR"}, "author": {"@id": "https://smallstonestudio.com/#org"}, "publisher": {"@id": "https://smallstonestudio.com/#org", "@type": "Organization", "name": "Small Stone Studio", "url": "https://smallstonestudio.com/"}}</script>
+<script>document.documentElement.classList.remove("no-js");</script>
+<style>
+#no-js { display: none; }
+.no-js #no-js { display: block; box-sizing: border-box; max-width: min(460px, calc(100vw - 32px)); margin: 18vh auto 0; padding: 22px 24px; border-radius: 16px; background: #173e45; border: 2px solid #e8bb67; color: #f7efd9; font: 17px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; text-align: center; }
+.no-js #no-js p { margin: 0 0 14px; }
+.no-js #no-js a { color: #e8bb67; font-weight: 600; }
+.no-js #loader, .no-js #canvas { display: none !important; }
+</style>
 <link rel="preload" href="loading/people.webp" as="image">
 <link rel="preload" href="loading/title.webp" as="image">
 <style>
@@ -72,7 +82,10 @@ body { background: #123b43; color: #123b43; overflow: hidden; touch-action: none
 </head>
 <body>
 <canvas id="canvas">Your browser does not support the canvas tag.</canvas>
-<noscript>Fisher of Men needs JavaScript to run.</noscript>
+<div id="no-js">
+<p>Fisher of Men is a free game from Small Stone Studio. Gather people and bring them home to Jesus. Every run ends with a Bible verse. Please turn on JavaScript to play.</p>
+<a href="https://smallstonestudio.com/games/">More about our games</a>
+</div>
 <div id="loader">
   <div id="stage">
   <img id="title" src="loading/title.webp" alt="Fisher of Men" width="520" height="177">
@@ -86,7 +99,7 @@ body { background: #123b43; color: #123b43; overflow: hidden; touch-action: none
 </div>
 <script src="index.js"></script>
 <script>
-const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","mainPack":"game-4a5260d1cbe4a9ef.pck","experimentalVK":false,"fileSizes":{"game-4a5260d1cbe4a9ef.pck":12942376,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
+const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","mainPack":"game-02736a2c5274a7ab.pck","experimentalVK":false,"fileSizes":{"game-02736a2c5274a7ab.pck":14779756,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
 const GODOT_THREADS_ENABLED = false;
 const engine = new Engine(GODOT_CONFIG);
 
