@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" class="no-js">
 <head>
+<script>window.FOM_BUILD="22 Oct 00:29 a203b7";(function(){try{fetch("build.txt?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.text():"";}).then(function(t){t=t.trim();if(t&&t!==window.FOM_BUILD){var u=new URL(location.href);if(u.searchParams.get("b")!==t){u.searchParams.set("b",t);location.replace(u.toString());}}}).catch(function(){});}catch(e){}})();</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0">
 <meta name="theme-color" content="#123b43">
@@ -50,13 +51,8 @@ body { background: #123b43; color: #123b43; overflow: hidden; touch-action: none
 #gate { position: absolute; left: 50%; bottom: 0; width: 120px; height: 108px; transform: translateX(-50%); background: url("loading/gate.webp") center bottom / contain no-repeat; }
 #jesus { position: absolute; left: 50%; bottom: -2px; width: 44px; height: 68px; transform: translateX(-50%); background: url("loading/jesus.webp") center bottom / contain no-repeat; }
 #walkers { position: absolute; inset: 0; overflow: hidden; border-radius: 14px; }
-.person, .waiting { position: absolute; left: 0; bottom: 4px; width: 56px; height: 56px; margin-left: -28px; will-change: transform; }
-.person, .waiting .sprite { background: url("loading/people.webp") 0 0 / 224px 504px no-repeat; }
-.waiting .sprite { position: absolute; inset: 0; transition: transform 0.35s ease, opacity 0.35s ease; }
-.waiting .disc { position: absolute; left: 50%; bottom: 1px; width: 36px; height: 14px; margin-left: -18px; border-radius: 50%; background: rgba(140, 203, 176, 0.85); transition: opacity 0.35s ease; }
-.waiting.taken .sprite { transform: translateY(-12px) scale(1.12); opacity: 0; }
-.waiting.taken .disc { opacity: 0; }
-.spark { position: absolute; bottom: 26px; width: 4px; height: 4px; margin-left: -2px; border-radius: 50%; background: #e8bb67; pointer-events: none; animation: spark 0.6s ease-out forwards; }
+.person { position: absolute; left: 0; bottom: 4px; width: 56px; height: 56px; margin-left: -28px; will-change: transform; }
+.person { background: url("loading/people.webp") 0 0 / 224px 504px no-repeat; }
 #procession { position: absolute; inset: 0; overflow: visible; }
 #procession .person { margin-left: 0; left: 0; top: 0; bottom: auto; transform-origin: 50% 100%; }
 #status { min-height: 1.6em; margin: 0; font-size: clamp(16px, 2.4vh, 22px); font-weight: 600; letter-spacing: 0.02em; color: #123b43; text-shadow: 0 1px 0 rgba(247, 239, 217, 0.8); }
@@ -65,14 +61,15 @@ body { background: #123b43; color: #123b43; overflow: hidden; touch-action: none
 #notice strong { display: block; margin-bottom: 6px; color: #e8bb67; font-size: 19px; }
 #notice small { display: block; margin-top: 10px; color: #8ccbb0; }
 #notice button { display: block; margin: 14px auto 0; padding: 10px 26px; border: 0; border-radius: 999px; background: #e8bb67; color: #123b43; font: inherit; font-weight: 700; cursor: pointer; }
-#loader.failed #scene, #loader.failed #status { display: none; }
+/* Matthew 4:19 under the status line (Simon, 21 Oct). */
+#verse { max-width: min(86vw, 470px); margin: 0; text-align: center; color: #123b43; font-size: clamp(15px, 2.1vh, 19px); line-height: 1.45; text-shadow: 0 1px 0 rgba(247, 239, 217, 0.8); }
+#verse .ref { display: block; margin-top: 4px; color: #8f6a24; font-size: 0.82em; font-weight: 600; }
+#loader.failed #scene, #loader.failed #status, #loader.failed #verse { display: none; }
 #loader.failed #notice { display: block; }
 @keyframes breathe { 0%, 100% { opacity: 0.75; transform: translate(-50%, -52%) scale(0.96); } 50% { opacity: 1; transform: translate(-50%, -52%) scale(1.04); } }
-@keyframes spark { from { opacity: 1; transform: translate(0, 0); } to { opacity: 0; transform: translate(var(--dx), -26px); } }
 @media (prefers-reduced-motion: reduce) {
   #glow { animation: none; }
-  .spark { display: none; }
-  #loader, .waiting { transition-duration: 0.01s; }
+  #loader { transition-duration: 0.01s; }
 }
 @media (min-aspect-ratio: 4/3) { #scene { height: 180px; } }
 </style>
@@ -88,18 +85,19 @@ body { background: #123b43; color: #123b43; overflow: hidden; touch-action: none
 </div>
 <div id="loader">
   <div id="stage">
-  <img id="title" src="loading/title.webp" alt="Fisher of Men" width="520" height="177">
+  <img id="title" src="loading/title.webp" alt="Fisher of Men" width="520" height="219">
   <div id="scene" aria-hidden="true">
     <div id="path"><div id="walkers"></div></div>
     <div id="goal"><div id="glow"></div><div id="gate"></div><div id="procession"></div><div id="jesus"></div></div>
   </div>
   <p id="status"></p>
+<p id="verse"><span class="text"></span><span class="ref"></span></p>
   <div id="notice" role="alert"></div>
   </div>
 </div>
 <script src="index.js"></script>
 <script>
-const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","mainPack":"game-02736a2c5274a7ab.pck","experimentalVK":false,"fileSizes":{"game-02736a2c5274a7ab.pck":14779756,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
+const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","mainPack":"game-a203b7d9c53ba958.pck","experimentalVK":false,"fileSizes":{"game-a203b7d9c53ba958.pck":17590780,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
 const GODOT_THREADS_ENABLED = false;
 const engine = new Engine(GODOT_CONFIG);
 
@@ -116,7 +114,9 @@ const engine = new Engine(GODOT_CONFIG);
       "errorDetail": "Missing:",
       "loadTitle": "The game could not load",
       "loadText": "Please check your connection and try again.",
-      "reload": "Try again"
+      "reload": "Try again",
+      "verse": "“Come, follow Me,” Jesus said, “and I will make you fishers of men.”",
+      "verseSource": "Matthew 4:19 · Majority Standard Bible"
     },
     "de": {
       "gathering": "Menschen sammeln",
@@ -127,7 +127,9 @@ const engine = new Engine(GODOT_CONFIG);
       "errorDetail": "Es fehlt:",
       "loadTitle": "Das Spiel ließ sich nicht laden",
       "loadText": "Bitte prüfe deine Verbindung und versuche es noch einmal.",
-      "reload": "Noch einmal"
+      "reload": "Noch einmal",
+      "verse": "„Folgt mir nach, und ich will euch zu Menschenfischern machen!“",
+      "verseSource": "Matthäus 4,19 (Schlachter 2000)"
     }
   };
   // i18n:end
@@ -140,12 +142,15 @@ const engine = new Engine(GODOT_CONFIG);
   const loader = document.getElementById('loader');
   const walkers = document.getElementById('walkers');
   const statusLine = document.getElementById('status');
+  const verse = document.getElementById('verse');
+  verse.querySelector('.text').textContent = STRINGS.verse;
+  verse.querySelector('.ref').textContent = STRINGS.verseSource;
   const notice = document.getElementById('notice');
   const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const CELL = 56;
-  // Six people wait along the path, chosen for varied looks from the rendered sheet.
-  const WAITING_ROWS = [1, 2, 3, 5, 6, 7];
-  const SPACING = 30;
+  // The row following the fisher, chosen for varied looks from the rendered sheet.
+  const LINE_ROWS = [1, 2, 3, 5, 6];
+  const SPACING = 28;
 
   // On large screens the whole scene grows (the sprites are drawn at twice their size),
   // but never wider than the window, so tall tablets keep the gate in view.
@@ -174,32 +179,14 @@ const engine = new Engine(GODOT_CONFIG);
     walkers.appendChild(el);
     return el;
   }
-  function waitingPerson(row) {
-    // Someone waiting on a light disc, like a pickup on the board.
-    const el = document.createElement('div');
-    el.className = 'waiting';
-    const disc = document.createElement('div');
-    disc.className = 'disc';
-    const sprite = document.createElement('div');
-    sprite.className = 'sprite';
-    sprite.style.backgroundPosition = (-CELL) + 'px ' + (-row * CELL) + 'px';
-    el.appendChild(disc);
-    el.appendChild(sprite);
-    walkers.appendChild(el);
-    return el;
-  }
   function frame(el, row, index) {
     el.style.backgroundPosition = (-index * CELL) + 'px ' + (-row * CELL) + 'px';
   }
 
-  // The leader walks the path; people wait along it and join the line as he passes.
+  // The fisher leads a row of people along the path to Jesus (Simon, 20 Oct).
   const leader = { el: person(0), row: 0 };
   leader.el.style.zIndex = 3;
-  const waiting = [];
-  WAITING_ROWS.forEach((row, i) => {
-    waiting.push({ row: row, at: 0.13 + i * 0.145, el: waitingPerson(row), joined: false });
-  });
-  const line = [];
+  const line = LINE_ROWS.map((row) => ({ el: person(row), row: row }));
   let shown = 0;
   let target = 0;
   let downloaded = false;
@@ -212,7 +199,7 @@ const engine = new Engine(GODOT_CONFIG);
   function pathWidth() { return walkers.clientWidth; }
   function leaderX(p) {
     const width = pathWidth();
-    const start = 26;
+    const start = 26 + LINE_ROWS.length * SPACING; // room for the row behind him
     const end = width - 92; // stop in front of Jesus
     return start + (end - start) * p;
   }
@@ -224,17 +211,6 @@ const engine = new Engine(GODOT_CONFIG);
       span.className = 'pct';
       span.textContent = pct + '%';
       statusLine.appendChild(span);
-    }
-  }
-  function sparkle(x) {
-    if (calm) return;
-    for (let i = 0; i < 5; i++) {
-      const s = document.createElement('div');
-      s.className = 'spark';
-      s.style.left = x + 'px';
-      s.style.setProperty('--dx', ((i - 2) * 7) + 'px');
-      walkers.appendChild(s);
-      setTimeout(() => s.remove(), 700);
     }
   }
 
@@ -255,19 +231,6 @@ const engine = new Engine(GODOT_CONFIG);
     } else walkFrame = 0;
     leader.el.style.transform = 'translateX(' + x + 'px)';
     frame(leader.el, 0, walkFrame);
-    for (const w of waiting) {
-      if (!w.joined) {
-        w.el.style.transform = 'translateX(' + leaderX(w.at) + 'px)';
-        if (shown >= w.at) {
-          w.joined = true;
-          w.el.classList.add('taken');
-          sparkle(leaderX(w.at));
-          const follower = person(w.row);
-          line.push({ el: follower, row: w.row });
-          setTimeout(() => w.el.remove(), 350);
-        }
-      }
-    }
     line.forEach((f, k) => {
       f.el.style.transform = 'translateX(' + (x - (k + 1) * SPACING) + 'px)';
       frame(f.el, f.row, (walkFrame + k) % 4 * (moving && !calm ? 1 : 0));
