@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" class="no-js">
 <head>
-<script>window.FOM_BUILD="22 Oct 00:29 a203b7";(function(){try{fetch("build.txt?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.text():"";}).then(function(t){t=t.trim();if(t&&t!==window.FOM_BUILD){var u=new URL(location.href);if(u.searchParams.get("b")!==t){u.searchParams.set("b",t);location.replace(u.toString());}}}).catch(function(){});}catch(e){}})();</script>
+<script>window.FOM_BUILD="22 Oct 17:16 5710d0";(function(){try{fetch("build.txt?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.text():"";}).then(function(t){t=t.trim();if(t&&t!==window.FOM_BUILD){var u=new URL(location.href);if(u.searchParams.get("b")!==t){u.searchParams.set("b",t);location.replace(u.toString());}}}).catch(function(){});}catch(e){}})();</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0">
 <meta name="theme-color" content="#123b43">
@@ -62,10 +62,12 @@ body { background: #123b43; color: #123b43; overflow: hidden; touch-action: none
 #notice small { display: block; margin-top: 10px; color: #8ccbb0; }
 #notice button { display: block; margin: 14px auto 0; padding: 10px 26px; border: 0; border-radius: 999px; background: #e8bb67; color: #123b43; font: inherit; font-weight: 700; cursor: pointer; }
 /* Matthew 4:19 under the status line (Simon, 21 Oct). */
-#verse { max-width: min(86vw, 470px); margin: 0; text-align: center; color: #123b43; font-size: clamp(15px, 2.1vh, 19px); line-height: 1.45; text-shadow: 0 1px 0 rgba(247, 239, 217, 0.8); }
-#verse .ref { display: block; margin-top: 4px; color: #8f6a24; font-size: 0.82em; font-weight: 600; }
+#verse { box-sizing: border-box; width: min(88vw, 470px); margin: 0; padding: 14px 18px 12px; border-radius: 16px; border: 2px solid #e8bb67; background: rgba(23, 62, 69, 0.94); box-shadow: 0 6px 14px rgba(12, 45, 52, 0.3); text-align: center; color: #f7efd9; font-size: clamp(15px, 2.1vh, 19px); line-height: 1.45; }
+#verse .ref { display: block; margin-top: 6px; color: #e8bb67; font-size: 0.82em; font-weight: 600; }
 #loader.failed #scene, #loader.failed #status, #loader.failed #verse { display: none; }
 #loader.failed #notice { display: block; }
+/* The Small Stone Studio logo at the foot of the loader (Simon, 22 Oct). */
+#studio { position: absolute; left: 50%; bottom: max(3.5vh, 18px); width: min(46vw, 200px); height: auto; transform: translateX(-50%); }
 @keyframes breathe { 0%, 100% { opacity: 0.75; transform: translate(-50%, -52%) scale(0.96); } 50% { opacity: 1; transform: translate(-50%, -52%) scale(1.04); } }
 @media (prefers-reduced-motion: reduce) {
   #glow { animation: none; }
@@ -94,10 +96,11 @@ body { background: #123b43; color: #123b43; overflow: hidden; touch-action: none
 <p id="verse"><span class="text"></span><span class="ref"></span></p>
   <div id="notice" role="alert"></div>
   </div>
+  <img id="studio" src="loading/studio.webp" alt="Small Stone Studio" width="480" height="96">
 </div>
 <script src="index.js"></script>
 <script>
-const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","mainPack":"game-a203b7d9c53ba958.pck","experimentalVK":false,"fileSizes":{"game-a203b7d9c53ba958.pck":17590780,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
+const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","mainPack":"game-5710d023ba0fd282.pck","experimentalVK":false,"fileSizes":{"game-5710d023ba0fd282.pck":17673112,"index.wasm":28996398},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
 const GODOT_THREADS_ENABLED = false;
 const engine = new Engine(GODOT_CONFIG);
 
