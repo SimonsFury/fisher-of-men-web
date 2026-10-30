@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" class="no-js">
 <head>
-<script>window.FOM_BUILD="29 Oct 08:28 2b55f0";(function(){try{fetch("build.txt?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.text():"";}).then(function(t){t=t.trim();if(t&&t!==window.FOM_BUILD){var u=new URL(location.href);if(u.searchParams.get("b")!==t){u.searchParams.set("b",t);location.replace(u.toString());}}}).catch(function(){});}catch(e){}})();</script>
+<script>window.FOM_BUILD="29 Oct 11:25 f8db77";(function(){try{fetch("build.txt?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.text():"";}).then(function(t){t=t.trim();if(t&&t!==window.FOM_BUILD){var u=new URL(location.href);if(u.searchParams.get("b")!==t){u.searchParams.set("b",t);location.replace(u.toString());}}}).catch(function(){});}catch(e){}})();</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0">
 <meta name="theme-color" content="#123b43">
@@ -66,8 +66,9 @@ body { background: #123b43; color: #123b43; overflow: hidden; touch-action: none
 #verse .ref { display: block; margin-top: 6px; color: #e8bb67; font-size: 0.82em; font-weight: 600; }
 #loader.failed #scene, #loader.failed #status, #loader.failed #verse { display: none; }
 #loader.failed #notice { display: block; }
-/* The Small Stone Studio logo at the foot of the loader (Simon, 22 Oct). */
-#studio { position: absolute; left: 50%; bottom: max(3.5vh, 18px); width: min(46vw, 200px); height: auto; transform: translateX(-50%); }
+/* The Small Stone Studio logo under the verse (Simon, 22 Oct). In the page flow, so it never
+   sits on the verse (29 Oct: it covered it in short browser windows). */
+#studio { flex: none; width: min(46vw, 200px); height: auto; margin-top: max(2.5vh, 12px); }
 @keyframes breathe { 0%, 100% { opacity: 0.75; transform: translate(-50%, -52%) scale(0.96); } 50% { opacity: 1; transform: translate(-50%, -52%) scale(1.04); } }
 @media (prefers-reduced-motion: reduce) {
   #glow { animation: none; }
@@ -100,7 +101,7 @@ body { background: #123b43; color: #123b43; overflow: hidden; touch-action: none
 </div>
 <script src="index.js"></script>
 <script>
-const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","mainPack":"game-2b55f0e924431368.pck","experimentalVK":false,"fileSizes":{"game-2b55f0e924431368.pck":17685404,"index.wasm":28996398},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
+const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","mainPack":"game-f8db77cf677c93fa.pck","experimentalVK":false,"fileSizes":{"game-f8db77cf677c93fa.pck":17692360,"index.wasm":28996398},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
 const GODOT_THREADS_ENABLED = false;
 const engine = new Engine(GODOT_CONFIG);
 
@@ -160,13 +161,18 @@ const engine = new Engine(GODOT_CONFIG);
   const stage = document.getElementById('stage');
   const sceneBox = document.getElementById('scene');
   function fit() {
+    stage.style.zoom = '';
     let grow = 1;
     if (window.innerWidth > 700) {
-      const byHeight = Math.min(1.6, window.innerHeight / 620);
+      // Grow only as far as the scene, the verse and the studio logo below it still fit.
+      const logo = document.getElementById('studio');
+      const room = window.innerHeight - (logo ? logo.offsetHeight : 0) - 60;
+      const byHeight = Math.min(1.6, room / Math.max(1, stage.offsetHeight));
       const byWidth = window.innerWidth * 0.9 / Math.max(1, sceneBox.offsetWidth);
       grow = Math.max(1, Math.min(byHeight, byWidth));
     }
-    stage.style.transform = grow > 1 ? 'scale(' + grow.toFixed(3) + ')' : '';
+    // zoom, not a transform: the larger scene takes its room in the layout and pushes the logo down.
+    stage.style.zoom = grow > 1 ? grow.toFixed(3) : '';
   }
   fit();
   window.addEventListener('resize', fit);
