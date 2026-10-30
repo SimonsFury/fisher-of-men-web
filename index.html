@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" class="no-js">
 <head>
-<script>window.FOM_BUILD="29 Oct 11:25 f8db77";(function(){try{fetch("build.txt?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.text():"";}).then(function(t){t=t.trim();if(t&&t!==window.FOM_BUILD){var u=new URL(location.href);if(u.searchParams.get("b")!==t){u.searchParams.set("b",t);location.replace(u.toString());}}}).catch(function(){});}catch(e){}})();</script>
+<script>window.FOM_BUILD="30 Oct 01:35 49215d";(function(){try{fetch("build.txt?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.text():"";}).then(function(t){t=t.trim();if(t&&t!==window.FOM_BUILD){var u=new URL(location.href);if(u.searchParams.get("b")!==t){u.searchParams.set("b",t);location.replace(u.toString());}}}).catch(function(){});}catch(e){}})();</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0">
 <meta name="theme-color" content="#123b43">
@@ -68,7 +68,10 @@ body { background: #123b43; color: #123b43; overflow: hidden; touch-action: none
 #loader.failed #notice { display: block; }
 /* The Small Stone Studio logo under the verse (Simon, 22 Oct). In the page flow, so it never
    sits on the verse (29 Oct: it covered it in short browser windows). */
-#studio { flex: none; width: min(46vw, 200px); height: auto; margin-top: max(2.5vh, 12px); }
+#foot { flex: none; display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: max(2.5vh, 12px); }
+#studio { width: min(40vw, 180px); height: auto; }
+/* The app on Google Play, beside the studio logo (Simon, 30 Oct). Google's own badge. */
+#playbadge img { display: block; height: min(16vw, 64px); width: auto; }
 @keyframes breathe { 0%, 100% { opacity: 0.75; transform: translate(-50%, -52%) scale(0.96); } 50% { opacity: 1; transform: translate(-50%, -52%) scale(1.04); } }
 @media (prefers-reduced-motion: reduce) {
   #glow { animation: none; }
@@ -97,11 +100,14 @@ body { background: #123b43; color: #123b43; overflow: hidden; touch-action: none
 <p id="verse"><span class="text"></span><span class="ref"></span></p>
   <div id="notice" role="alert"></div>
   </div>
-  <img id="studio" src="loading/studio.webp" alt="Small Stone Studio" width="480" height="96">
+  <div id="foot">
+    <img id="studio" src="loading/studio.webp" alt="Small Stone Studio" width="480" height="96">
+    <a id="playbadge" href="https://play.google.com/store/apps/details?id=com.smallstonestudio.fisherofmen" target="_blank" rel="noopener"><img src="loading/google-play-en.png" alt="Get it on Google Play" width="646" height="250"></a>
+  </div>
 </div>
 <script src="index.js"></script>
 <script>
-const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","mainPack":"game-f8db77cf677c93fa.pck","experimentalVK":false,"fileSizes":{"game-f8db77cf677c93fa.pck":17692360,"index.wasm":28996398},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
+const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","mainPack":"game-49215d25c98dbc99.pck","experimentalVK":false,"fileSizes":{"game-49215d25c98dbc99.pck":17692968,"index.wasm":28996398},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
 const GODOT_THREADS_ENABLED = false;
 const engine = new Engine(GODOT_CONFIG);
 
@@ -142,6 +148,11 @@ const engine = new Engine(GODOT_CONFIG);
   try { savedLanguage = localStorage.getItem('fom-language'); } catch (e) {}
   const LANGUAGE = savedLanguage === 'de' || savedLanguage === 'en' ? savedLanguage : (/^de/i.test(navigator.language || '') ? 'de' : 'en');
   const STRINGS = Object.assign({}, TEXTS.en, TEXTS[LANGUAGE] || {});
+  if (LANGUAGE === 'de') {
+    const badge = document.querySelector('#playbadge img');
+    badge.src = 'loading/google-play-de.png';
+    badge.alt = 'Jetzt bei Google Play';
+  }
   document.documentElement.lang = LANGUAGE;
   const loader = document.getElementById('loader');
   const walkers = document.getElementById('walkers');
@@ -165,7 +176,7 @@ const engine = new Engine(GODOT_CONFIG);
     let grow = 1;
     if (window.innerWidth > 700) {
       // Grow only as far as the scene, the verse and the studio logo below it still fit.
-      const logo = document.getElementById('studio');
+      const logo = document.getElementById('foot');
       const room = window.innerHeight - (logo ? logo.offsetHeight : 0) - 60;
       const byHeight = Math.min(1.6, room / Math.max(1, stage.offsetHeight));
       const byWidth = window.innerWidth * 0.9 / Math.max(1, sceneBox.offsetWidth);
